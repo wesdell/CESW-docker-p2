@@ -53,17 +53,21 @@ docker build -t <nombre imagen>:<tag> .
 ### Ejecutar el archivo Dockerfile y construir una imagen en la versión 1.0
 No olvides verificar en qué directorio se encuentra el archivo Dockerfile
 ```
-
+docker build -t apache-centos:1.0 .
 ```
 
 **¿Cuántos pasos se han ejecutado?**
-# RESPONDER 
+Se ejecutaron 5 pasos. Al construir la imagen salía un error en el paso `RUN yum -y update` porque los repositorios de centos:7 ya no están disponibles, por eso se agregó una línea más en el Dockerfile para usar los repositorios de vault.centos.org.
 
 ### Inspeccionar la imagen creada
-# COMPLETAR CON UNA CAPTURA
+![Inspeccionar imagen](img/inspect.png)
 
 **Modificar el archivo index.html para incluir su nombre y luego crear una nueva versión de la imagen anterior**
 **¿Cuántos pasos se han ejecutado? ¿Observa algo diferente en la creación de la imagen**
+```
+docker build -t apache-centos:2.0 .
+```
+Se ejecutaron los mismos 5 pasos, pero la imagen se creó mucho más rápido. Los pasos que no cambiaron aparecen como CACHED, es decir que Docker reutilizó lo que ya tenía guardado. El único paso que se volvió a ejecutar fue el COPY, porque se modificó el archivo index.html.
 
 ## Mecanismo de caché
 Docker usa un mecanismo de caché cuando crea imágenes para acelerar el proceso de construcción y evitar la repetición de pasos que no han cambiado. Cada instrucción en un Dockerfile crea una capa en la imagen final. Docker intenta reutilizar las capas de una construcción anterior si no han cambiado, lo que reduce significativamente el tiempo de construcción.
@@ -75,14 +79,14 @@ Docker usa un mecanismo de caché cuando crea imágenes para acelerar el proceso
 
 ### Crear un contenedor a partir de las imagen creada, mapear todos los puertos
 ```
-
+docker run -d --name server-apache -P apache-centos:2.0
 ```
 
 ### ¿Con que puerto host se está realizando el mapeo?
-# COMPLETAR CON LA RESPUESTA
+El mapeo se está realizando con el puerto 32768 del host, el cual Docker asignó automáticamente al puerto 80 del contenedor.
 
 **¿Qué es una imagen huérfana?**
-# COMPLETAR CON LA RESPUESTA
+Es una imagen que se quedó sin nombre y sin etiqueta (aparece como `<none>`). Normalmente sucede cuando se construye una nueva imagen con el mismo nombre y etiqueta de una imagen anterior, entonces la imagen anterior pierde su nombre y ya no se utiliza.
 
 ### Identificar imágenes huérfanas
 ```
